@@ -1,0 +1,29 @@
+version: "3.4"
+
+services:
+  juicebox:
+    image: bkimminich/juice-shop
+    environment:
+      - BASE_PATH=http://localhost/
+  modsecurity:
+    build: ./modsecurity
+    ports:
+      - 80:80
+    environment:
+      - PROXY=1
+      - PROXYLOCATION=http://juicebox:3000/
+    volumes:
+      - ./modsecurity/modsecurity.conf:/etc/modsecurity.d/modsecurity.conf
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.1
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - 5601:5601
